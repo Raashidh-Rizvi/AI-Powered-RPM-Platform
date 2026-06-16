@@ -2,6 +2,26 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
+class RPMReadingBase(BaseModel):
+    vital_type: str
+    value: Optional[float] = None
+    structured_value: Optional[Dict[str, Any]] = None
+    unit: Optional[str] = None
+    device_source: Optional[str] = None
+    reading_metadata: Optional[Dict[str, Any]] = None
+
+class RPMReadingCreate(RPMReadingBase):
+    patient_id: str
+    timestamp: Optional[datetime] = None
+
+class RPMReading(RPMReadingBase):
+    id: str
+    patient_id: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
+
 class PatientBase(BaseModel):
     name: str
 
@@ -11,21 +31,7 @@ class PatientCreate(PatientBase):
 class Patient(PatientBase):
     id: str
     created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class RPMReadingBase(BaseModel):
-    metric_type: str
-    value: float
-
-class RPMReadingCreate(RPMReadingBase):
-    patient_id: str
-
-class RPMReading(RPMReadingBase):
-    id: str
-    patient_id: str
-    timestamp: datetime
+    last_reading: Optional[RPMReading] = None
 
     class Config:
         from_attributes = True
@@ -63,7 +69,7 @@ class AIDeteriorationEvent(BaseModel):
 class PatientBaseline(BaseModel):
     id: str
     patient_id: str
-    metric_type: str
+    vital_type: str
     avg_value: float
     min_value: float
     max_value: float
@@ -76,7 +82,7 @@ class PatientBaseline(BaseModel):
 class AITrend(BaseModel):
     id: str
     patient_id: str
-    metric_type: str
+    vital_type: str
     trend_direction: str
     slope_value: float
     confidence: float
@@ -89,7 +95,7 @@ class AITrend(BaseModel):
 class AIAnomaly(BaseModel):
     id: str
     patient_id: str
-    metric_type: str
+    vital_type: str
     anomaly_type: str
     severity: str
     value: float
@@ -110,3 +116,26 @@ class AIRiskScore(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AIFeature(BaseModel):
+    id: str
+    patient_id: str
+    vital_type: str
+    rolling_average_7d: Optional[float] = None
+    trend_slope: Optional[float] = None
+    deviation_from_baseline: Optional[float] = None
+    variability_index: Optional[float] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class DataPoint(BaseModel):
+    time: datetime
+    value: Optional[float] = None
+    structured_value: Optional[Dict[str, Any]] = None
+
+class VitalTimeSeriesResponse(BaseModel):
+    patient_id: str
+    vital_type: str
+    data_points: List[DataPoint]

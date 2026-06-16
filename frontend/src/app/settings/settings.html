@@ -1,0 +1,63 @@
+<div class="page-title animate-fade-in-up stagger-1">
+  <h2>System Settings</h2>
+  <p>Configure AI parameters and notification preferences.</p>
+</div>
+
+<div class="dashboard-grid">
+  <section class="card animate-fade-in-up stagger-2">
+    <div class="section-header">
+      <h2>AI Engine Configuration</h2>
+    </div>
+    
+    <div style="margin-bottom: 2rem;">
+      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Deterioration Model Sensitivity: {{ aiSensitivity }}%</label>
+      <input type="range" min="1" max="100" [(ngModel)]="aiSensitivity" style="width: 100%; cursor: pointer;">
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 0.5rem;">
+        Higher sensitivity generates more alerts but may increase false positives. Lower sensitivity requires stronger anomalous signals to trigger.
+      </p>
+    </div>
+
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+      <div>
+        <h4 style="margin-bottom: 0.25rem;">Automated Triage</h4>
+        <p style="font-size: 13px; color: var(--text-muted);">Allow AI to automatically categorize patients based on incoming vitals.</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" [(ngModel)]="autoTriage">
+        <span class="slider round" style="background: var(--text-muted); border-radius: 34px; padding: 12px 24px; color: white; cursor: pointer;" [ngStyle]="{'background': autoTriage ? 'var(--accent-color)' : 'var(--text-muted)'}">Toggle</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="card animate-fade-in-up stagger-3">
+    <div class="section-header">
+      <h2>Notification Preferences</h2>
+    </div>
+    
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h4 style="margin-bottom: 0.25rem;">Email Alerts</h4>
+        <p style="font-size: 13px; color: var(--text-muted);">Receive summary reports and critical alerts via email.</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" [(ngModel)]="emailNotifications">
+        <span class="slider round" style="background: var(--text-muted); border-radius: 34px; padding: 12px 24px; color: white; cursor: pointer;" [ngStyle]="{'background': emailNotifications ? 'var(--accent-color)' : 'var(--text-muted)'}">Toggle</span>
+      </label>
+    </div>
+
+    <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+      <div>
+        <h4 style="margin-bottom: 0.25rem;">SMS Critical Alerts</h4>
+        <p style="font-size: 13px; color: var(--text-muted);">Get instant text messages for CRITICAL severity alerts only.</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" [(ngModel)]="smsNotifications">
+        <span class="slider round" style="background: var(--text-muted); border-radius: 34px; padding: 12px 24px; color: white; cursor: pointer;" [ngStyle]="{'background': smsNotifications ? 'var(--accent-color)' : 'var(--text-muted)'}">Toggle</span>
+      </label>
+    </div>
+  </section>
+</div>
+
+<div class="animate-fade-in-up stagger-3" style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+  <button class="btn" (click)="saveSettings()">Save Configuration</button>
+</div>

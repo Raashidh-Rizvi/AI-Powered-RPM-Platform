@@ -1,0 +1,26 @@
+<div class="page-title animate-fade-in-up stagger-1">
+  <h2>Add New Patient</h2>
+  <p>Register a new patient into the RPM platform.</p>
+</div>
+
+<section class="card animate-fade-in-up stagger-2" style="max-width: 600px; margin: 0 auto; padding: 2rem;">
+  <form (ngSubmit)="addPatient()" #patientForm="ngForm">
+    <div style="margin-bottom: 1.5rem;">
+      <label for="name" style="display: block; margin-bottom: 0.5rem; color: var(--text-color); font-weight: 500;">Patient Name</label>
+      <input 
+        type="text" 
+        id="name" 
+        name="name" 
+        [(ngModel)]="patientName" 
+        required 
+        placeholder="e.g. Jane Doe"
+        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-color);">
+    </div>
+    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+      <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+      <button type="submit" class="btn" [disabled]="!patientName.trim() || isSubmitting">
+        {{ isSubmitting ? 'Adding...' : 'Add Patient' }}
+      </button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,99 @@
+<div class="page-title animate-fade-in-up stagger-1">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+      <h2>Alerts Intelligence Console</h2>
+      <p>Comprehensive, real-time log of all AI-generated clinical deterioration alerts.</p>
+    </div>
+    <button class="btn btn-secondary">Export Report</button>
+  </div>
+</div>
+
+<div class="alerts-stats-row animate-fade-in-up stagger-1">
+  <div class="alert-stat-card">
+    <div class="alert-stat-val">{{ alerts.length }}</div>
+    <div class="alert-stat-label">Total Alerts (24h)</div>
+  </div>
+  <div class="alert-stat-card" style="border-top: 4px solid var(--danger-color);">
+    <div class="alert-stat-val text-danger">0</div>
+    <div class="alert-stat-label">Critical Priority</div>
+  </div>
+  <div class="alert-stat-card" style="border-top: 4px solid var(--warning-color);">
+    <div class="alert-stat-val text-warning">0</div>
+    <div class="alert-stat-label">High Priority</div>
+  </div>
+  <div class="alert-stat-card" style="border-top: 4px solid var(--accent-color);">
+    <div class="alert-stat-val" style="color: var(--accent-color);">{{ alerts.length }}</div>
+    <div class="alert-stat-label">Resolved / Stable</div>
+  </div>
+</div>
+
+<section class="card animate-fade-in-up stagger-2" style="padding: 0; overflow: hidden; border: 1px solid var(--glass-border-strong);">
+  
+  <div class="filters-bar">
+    <div class="severity-filters">
+      <div class="severity-pill all">All Severities</div>
+      <div class="severity-pill critical">Critical</div>
+      <div class="severity-pill high">High</div>
+      <div class="severity-pill low">Stable</div>
+    </div>
+    <select style="padding: 8px 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border); background: var(--glass-bg); font-weight: 500; font-family: 'Outfit';">
+      <option>Last 24 Hours</option>
+      <option>Last 7 Days</option>
+      <option>All Time</option>
+    </select>
+  </div>
+
+  <div *ngIf="isLoading" style="padding: 4rem; text-align: center; color: var(--text-muted);">
+    <div style="width: 40px; height: 40px; border: 3px solid var(--glass-border); border-top-color: var(--danger-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+    <p>Compiling AI intelligence...</p>
+  </div>
+  
+  <div class="table-responsive" *ngIf="!isLoading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Risk Level</th>
+          <th style="width: 20%;">Patient Identifier</th>
+          <th style="width: 40%;">AI Diagnostic Message</th>
+          <th style="width: 15%;">Timestamp</th>
+          <th style="text-align: right; width: 10%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let alert of alerts">
+          <td>
+            <span class="badge" style="padding: 6px 12px;" [ngClass]="{'critical pulse-critical': alert.severity === 'CRITICAL', 'high': alert.severity === 'HIGH', 'success': alert.severity === 'LOW'}">
+              <span *ngIf="alert.severity === 'CRITICAL'">⚠️ </span>
+              {{ alert.severity | titlecase }}
+            </span>
+          </td>
+          <td>
+            <div style="font-family: monospace; background: rgba(0,0,0,0.04); padding: 4px 8px; border-radius: 4px; display: inline-block;">
+              {{ alert.patient_id | slice:0:8 }}...
+            </div>
+          </td>
+          <td style="font-weight: 500; color: var(--text-primary);">{{ alert.message }}</td>
+          <td style="color: var(--text-muted); font-size: 13px; font-weight: 500;">
+            {{ alert.created_at | date:'MMM d, h:mm a' }}
+          </td>
+          <td style="text-align: right;">
+            <button class="btn btn-secondary" style="padding: 6px 16px; font-size: 13px; border-radius: var(--border-radius-pill);" [routerLink]="['/patients', alert.patient_id]">
+              Review
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="alerts.length === 0">
+          <td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+            <div style="font-size: 48px; margin-bottom: 1rem;">🛡️</div>
+            <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">System Clear</h3>
+            <p>No active anomalies or clinical alerts detected by the AI engine.</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>

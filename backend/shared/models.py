@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text, JSON
-from database import Base
+from sqlalchemy.orm import relationship
+from shared.database import Base
 import uuid
 from datetime import datetime
 
@@ -9,13 +10,36 @@ class Patient(Base):
     name = Column(String, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    readings = relationship("RPMReading", back_populates="patient", order_by="desc(RPMReading.timestamp)")
+
+    @property
+    def last_reading(self):
+        return self.readings[0] if self.readings else None
+
 class RPMReading(Base):
     __tablename__ = "rpm_readings"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     patient_id = Column(String, ForeignKey("patients.id"))
-    metric_type = Column(String, index=True)
-    value = Column(Float)
+    vital_type = Column(String, index=True)
+    value = Column(Float, nullable=True)
+    structured_value = Column(JSON, nullable=True)
+    unit = Column(String, nullable=True)
+    device_source = Column(String, nullable=True)
+    reading_metadata = Column("metadata", JSON, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
+
+    patient = relationship("Patient", back_populates="readings")
+
+class AIFeature(Base):
+    __tablename__ = "ai_features"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    patient_id = Column(String, ForeignKey("patients.id"))
+    vital_type = Column(String(50))
+    rolling_average_7d = Column(Float, nullable=True)
+    trend_slope = Column(Float, nullable=True)
+    deviation_from_baseline = Column(Float, nullable=True)
+    variability_index = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 class AIAlert(Base):
     __tablename__ = "ai_alerts"
@@ -47,7 +71,7 @@ class PatientBaseline(Base):
     __tablename__ = "patient_baselines"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     patient_id = Column(String, ForeignKey("patients.id"))
-    metric_type = Column(String(50))
+    vital_type = Column(String(50))
     avg_value = Column(Float)
     min_value = Column(Float)
     max_value = Column(Float)
@@ -58,7 +82,7 @@ class AITrend(Base):
     __tablename__ = "ai_trends"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     patient_id = Column(String, ForeignKey("patients.id"))
-    metric_type = Column(String(50))
+    vital_type = Column(String(50))
     trend_direction = Column(String(20)) # increasing, decreasing, stable
     slope_value = Column(Float)
     confidence = Column(Float)
@@ -69,7 +93,7 @@ class AIAnomaly(Base):
     __tablename__ = "ai_anomalies"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     patient_id = Column(String, ForeignKey("patients.id"))
-    metric_type = Column(String(50))
+    vital_type = Column(String(50))
     anomaly_type = Column(String(50)) # spike, drop, deviation
     severity = Column(String(20)) # low, medium, high, critical
     value = Column(Float)

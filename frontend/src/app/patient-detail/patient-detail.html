@@ -1,0 +1,92 @@
+<div class="page-title animate-fade-in-up stagger-1" style="display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <h2>Patient AI Insights</h2>
+    <p>Predictive analysis and vitals for {{ patient?.name || 'Loading...' }}</p>
+  </div>
+  <a routerLink="/patients" class="btn btn-secondary">Back to Patients</a>
+</div>
+
+<div class="dashboard-grid" *ngIf="patient">
+  <section class="card animate-fade-in-up stagger-2">
+    <h3>Patient Profile</h3>
+    <div style="margin-top: 1rem;">
+      <p><strong>Name:</strong> {{ patient.name }}</p>
+      <p><strong>ID:</strong> {{ patient.id }}</p>
+      <div *ngIf="aiRisk.length > 0" style="margin-top: 1.5rem; padding: 1.5rem; border-radius: 8px; background: rgba(255,255,255,0.05); text-align: center; border: 1px solid var(--border-color);">
+        <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Current Risk Score</p>
+        <h2 [ngClass]="getRiskClass(aiRisk[0].risk_level)" style="font-size: 3.5rem; margin: 1rem 0;">{{ aiRisk[0].risk_score }}<span style="font-size: 1rem; color: var(--text-muted);">/100</span></h2>
+        <span class="badge" [ngClass]="{'critical pulse-critical': aiRisk[0].risk_level === 'CRITICAL', 'high': aiRisk[0].risk_level === 'HIGH', 'success': aiRisk[0].risk_level === 'low'}">{{ aiRisk[0].risk_level | uppercase }} RISK</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card animate-fade-in-up stagger-3 patients-section">
+    <div class="section-header">
+      <h2>Recent Anomalies & Trends</h2>
+    </div>
+    
+    <div *ngIf="aiAnomalies.length > 0" style="margin-bottom: 2rem;">
+      <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Detected Anomalies</h4>
+      <div class="alert-item" *ngFor="let anomaly of aiAnomalies.slice(0, 3)" style="border-left: 4px solid var(--accent-danger); background: var(--surface-1); margin-bottom: 1rem; padding: 1rem; border-radius: 4px;">
+        <div class="alert-content">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+             <strong>{{ anomaly.vital_type }} Anomaly</strong>
+             <span class="badge critical">{{ anomaly.severity | uppercase }}</span>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">{{ anomaly.reason }}</p>
+          <small style="color: var(--text-muted);">{{ anomaly.created_at | date:'short' }}</small>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="aiTrends.length > 0">
+      <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Latest Trends</h4>
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <div *ngFor="let trend of aiTrends.slice(0,4)" style="padding: 1rem; background: var(--surface-2); border-radius: 8px; flex: 1; min-width: 140px; text-align: center;">
+          <p style="font-weight: 600; margin-bottom: 0.5rem;">{{ trend.vital_type }}</p>
+          <span class="badge" [ngClass]="{'success': trend.trend_direction === 'stable', 'warning': trend.trend_direction !== 'stable'}">{{ trend.trend_direction | titlecase }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="aiAnomalies.length === 0 && aiTrends.length === 0" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+      No AI insights available yet. AI pipelines run after data ingestion.
+    </div>
+  </section>
+
+  <section class="card animate-fade-in-up stagger-4 patients-section" style="grid-column: 1 / -1;">
+    <div class="section-header">
+      <h2>Vital Sign Telemetry (All Records)</h2>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      <div *ngFor="let vitalGroup of vitalsData">
+        <h3 style="margin-bottom: 1rem; color: var(--accent-primary);">{{ vitalGroup.vital_type }}</h3>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Recorded Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dp of vitalGroup.data_points.slice().reverse()">
+                <td>{{ dp.time | date:'medium' }}</td>
+                <td>
+                  <strong *ngIf="dp.value !== null" style="font-size: 1.1rem;">{{ dp.value }}</strong>
+                  <strong *ngIf="dp.structured_value" style="font-size: 1.1rem;">SYS: {{ dp.structured_value.systolic }} / DIA: {{ dp.structured_value.diastolic }}</strong>
+                </td>
+              </tr>
+              <tr *ngIf="vitalGroup.data_points.length === 0">
+                <td colspan="2" style="text-align: center; padding: 2rem;">No data points.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div *ngIf="vitalsData.length === 0" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+        No vitals recorded for this patient.
+      </div>
+    </div>
+  </section>
+</div>

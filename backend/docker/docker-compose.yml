@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rdh123
+      POSTGRES_DB: "AI-Powered RPM Platform"
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PATIENT_SERVICE_URL=http://patient-service:8001
+      - RPM_SERVICE_URL=http://rpm-service:8002
+      - AI_SERVICE_URL=http://ai-service:8003
+    depends_on:
+      - patient-service
+      - rpm-service
+      - ai-service
+
+  patient-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.patient
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:rdh123@db:5432/AI-Powered RPM Platform
+    depends_on:
+      - db
+
+  rpm-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.rpm
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:rdh123@db:5432/AI-Powered RPM Platform
+      - AI_SERVICE_URL=http://ai-service:8003
+    depends_on:
+      - db
+      - ai-service
+
+  ai-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ai
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://postgres:rdh123@db:5432/AI-Powered RPM Platform
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - db
+      - redis

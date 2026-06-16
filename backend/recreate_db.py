@@ -1,7 +1,7 @@
 import os
-from sqlalchemy import create_engine
-from database import engine, SessionLocal, Base
-import models
+import sys
+from shared.database import engine, SessionLocal, Base
+from shared import models
 
 print("Dropping all tables...")
 Base.metadata.drop_all(bind=engine)

@@ -1,0 +1,96 @@
+<div class="page-title animate-fade-in-up stagger-1">
+  <h2>Today's Overview</h2>
+  <p>Real-time analytics and predictive deterioration scores.</p>
+</div>
+
+<section class="stats-overview">
+  <div class="card hoverable animate-fade-in-up stagger-1 stat-card">
+    <h3>Total Patients</h3>
+    <p class="stat-value">{{ patients.length }}</p>
+    <div class="stat-footer">
+      <span class="trend up">↑ 5%</span> <span class="trend-text">from last month</span>
+    </div>
+  </div>
+  <div class="card hoverable animate-fade-in-up stagger-2 stat-card">
+    <h3>Active Alerts</h3>
+    <p class="stat-value" [ngClass]="{'text-danger': alerts.length > 0, 'text-success': alerts.length === 0}">{{ alerts.length }}</p>
+    <div class="stat-footer">
+      <span class="trend down" *ngIf="alerts.length > 0">↓ 2%</span>
+      <span class="trend-text" *ngIf="alerts.length > 0">from yesterday</span>
+      <span class="trend-text" *ngIf="alerts.length === 0">All clear</span>
+    </div>
+  </div>
+  <div class="card hoverable animate-fade-in-up stagger-3 stat-card">
+    <h3>High Risk</h3>
+    <p class="stat-value text-warning">{{ highRiskCount }}</p>
+    <div class="stat-footer">
+      <span class="trend-text">Requires attention</span>
+    </div>
+  </div>
+</section>
+
+<div class="dashboard-grid">
+  <section class="card animate-fade-in-up stagger-2 alerts-section">
+    <div class="section-header">
+      <h2>Critical Alerts</h2>
+      <a routerLink="/alerts" class="view-all">View all alerts</a>
+    </div>
+    <div class="alert-list">
+      <div class="alert-item" *ngFor="let alert of alerts">
+        <div class="alert-icon" [ngClass]="{'danger-icon': alert.severity === 'CRITICAL', 'warning-icon': alert.severity === 'HIGH'}"></div>
+        <div class="alert-content">
+          <div class="alert-title-row">
+            <h4>Patient ID: {{ alert.patient_id | slice:0:8 }}...</h4>
+            <span class="badge" [ngClass]="{'critical pulse-critical': alert.severity === 'CRITICAL', 'high': alert.severity === 'HIGH'}">{{ alert.severity | titlecase }}</span>
+          </div>
+          <p>{{ alert.message }}</p>
+          <span class="time">{{ alert.created_at | date:'shortTime' }}</span>
+        </div>
+      </div>
+      
+      <div *ngIf="alerts.length === 0" class="no-data">
+        <p>No active alerts at this time.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card animate-fade-in-up stagger-3 patients-section">
+    <div class="section-header">
+      <h2>Monitored Patients</h2>
+      <a routerLink="/patients" class="view-all">View all patients</a>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Status</th>
+            <th>Last Reading</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let patient of patients">
+            <td>
+              <div class="patient-info">
+                <span class="patient-name">{{ patient.name }}</span>
+                <span class="patient-id">ID: {{ patient.id | slice:0:8 }}</span>
+              </div>
+            </td>
+            <td><span class="badge success">Monitored</span></td>
+            <td>
+              <span class="reading-value" *ngIf="patient.last_reading">
+                {{ patient.last_reading.value }} {{ patient.last_reading.metric_type }}
+              </span>
+              <span class="reading-value" *ngIf="!patient.last_reading" style="color: var(--text-muted);">N/A</span>
+            </td>
+            <td><button class="icon-btn" [routerLink]="['/patients', patient.id]">→</button></td>
+          </tr>
+          <tr *ngIf="patients.length === 0">
+            <td colspan="4" style="text-align: center; padding: 2rem;">No patients found. Backend is not seeded.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
