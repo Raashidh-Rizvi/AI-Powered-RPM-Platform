@@ -16,6 +16,24 @@ class Patient(Base):
     def last_reading(self):
         return self.readings[0] if self.readings else None
 
+    @property
+    def latest_vitals(self):
+        from sqlalchemy.orm import object_session
+        from sqlalchemy import func
+        session = object_session(self)
+        if not session:
+            return []
+        subquery = session.query(
+            RPMReading.vital_type,
+            func.max(RPMReading.timestamp).label('max_timestamp')
+        ).filter(RPMReading.patient_id == self.id).group_by(RPMReading.vital_type).subquery()
+        
+        return session.query(RPMReading).join(
+            subquery,
+            (RPMReading.vital_type == subquery.c.vital_type) &
+            (RPMReading.timestamp == subquery.c.max_timestamp)
+        ).filter(RPMReading.patient_id == self.id).all()
+
 class RPMReading(Base):
     __tablename__ = "rpm_readings"
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))

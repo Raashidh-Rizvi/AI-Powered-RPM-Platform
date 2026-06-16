@@ -12,6 +12,30 @@
     <div style="margin-top: 1rem;">
       <p><strong>Name:</strong> {{ patient.name }}</p>
       <p><strong>ID:</strong> {{ patient.id }}</p>
+
+      <div style="margin-top: 1.5rem;" *ngIf="vitalsData && vitalsData.length > 0">
+        <h4 style="margin-bottom: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase;">Latest Vitals</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem;">
+          <div *ngFor="let vg of vitalsData" style="background: rgba(255,255,255,0.05); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" [title]="vg.vital_type">{{ vg.vital_type }}</p>
+            <ng-container *ngIf="vg.data_points && vg.data_points.length > 0">
+              <strong *ngIf="vg.data_points[vg.data_points.length - 1].value !== null" style="font-size: 1.1rem; color: var(--text-primary);">
+                {{ vg.data_points[vg.data_points.length - 1].value | number:'1.0-2' }}
+              </strong>
+              <strong *ngIf="vg.data_points[vg.data_points.length - 1].structured_value" style="font-size: 0.9rem; color: var(--text-primary);">
+                {{ vg.data_points[vg.data_points.length - 1].structured_value.systolic }}/{{ vg.data_points[vg.data_points.length - 1].structured_value.diastolic }}
+              </strong>
+              <span style="display: block; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+                {{ vg.data_points[vg.data_points.length - 1].time | date:'shortTime' }}
+              </span>
+            </ng-container>
+            <ng-container *ngIf="!vg.data_points || vg.data_points.length === 0">
+              <span style="font-size: 0.9rem; color: var(--text-muted);">N/A</span>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
       <div *ngIf="aiRisk.length > 0" style="margin-top: 1.5rem; padding: 1.5rem; border-radius: 8px; background: rgba(255,255,255,0.05); text-align: center; border: 1px solid var(--border-color);">
         <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Current Risk Score</p>
         <h2 [ngClass]="getRiskClass(aiRisk[0].risk_level)" style="font-size: 3.5rem; margin: 1rem 0;">{{ aiRisk[0].risk_score }}<span style="font-size: 1rem; color: var(--text-muted);">/100</span></h2>

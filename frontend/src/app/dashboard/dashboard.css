@@ -157,11 +157,115 @@
   font-weight: 500;
 }
 
-.table-responsive {
-  overflow-x: auto;
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--glass-border);
+.patient-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.patient-card {
   background: rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.patient-card:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.patient-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 1rem;
+}
+
+.patient-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-gradient-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+
+.vitals-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.vital-item {
+  background: rgba(14, 165, 233, 0.05);
+  border: 1px solid rgba(14, 165, 233, 0.1);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.vital-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.vital-value {
+  color: var(--accent-primary);
+  font-size: 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.vital-value small {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.no-vitals {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 1rem;
+}
+
+.no-patients {
+  text-align: center;
+  padding: 2rem;
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: var(--border-radius-md);
 }
 
 .data-table {
@@ -186,6 +290,10 @@
 
 .data-table tr {
   transition: background-color 0.2s ease;
+}
+
+.data-table tr.clickable-row {
+  cursor: pointer;
 }
 
 .data-table tr:last-child td {

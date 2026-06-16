@@ -59,38 +59,40 @@
       <h2>Monitored Patients</h2>
       <a routerLink="/patients" class="view-all">View all patients</a>
     </div>
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Patient</th>
-            <th>Status</th>
-            <th>Last Reading</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let patient of patients">
-            <td>
-              <div class="patient-info">
-                <span class="patient-name">{{ patient.name }}</span>
-                <span class="patient-id">ID: {{ patient.id | slice:0:8 }}</span>
+    <div class="patient-cards-grid">
+      <div class="patient-card hoverable" *ngFor="let patient of patients" [routerLink]="['/patients', patient.id]">
+        <div class="patient-card-header">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="patient-avatar">
+              {{ patient.name.charAt(0) | uppercase }}
+            </div>
+            <div class="patient-info">
+              <span class="patient-name">{{ patient.name }}</span>
+              <span class="patient-id">ID: {{ patient.id | slice:0:8 }}</span>
+            </div>
+          </div>
+          <span class="badge success">Monitored</span>
+        </div>
+        <div class="patient-card-body">
+          <p class="vitals-title">Latest Vitals</p>
+          <div class="vitals-grid">
+            <ng-container *ngIf="patient.latest_vitals && patient.latest_vitals.length > 0">
+              <div *ngFor="let vital of patient.latest_vitals" class="vital-item">
+                <span class="vital-label" [title]="vital.vital_type">{{ vital.vital_type }}</span>
+                <span class="vital-value">
+                  <strong *ngIf="vital.value !== null">{{ vital.value | number:'1.0-0' }}</strong><strong *ngIf="vital.structured_value">{{ vital.structured_value.systolic }}/{{ vital.structured_value.diastolic }}</strong><small>{{ vital.unit ? vital.unit : '' }}</small>
+                </span>
               </div>
-            </td>
-            <td><span class="badge success">Monitored</span></td>
-            <td>
-              <span class="reading-value" *ngIf="patient.last_reading">
-                {{ patient.last_reading.value }} {{ patient.last_reading.metric_type }}
-              </span>
-              <span class="reading-value" *ngIf="!patient.last_reading" style="color: var(--text-muted);">N/A</span>
-            </td>
-            <td><button class="icon-btn" [routerLink]="['/patients', patient.id]">→</button></td>
-          </tr>
-          <tr *ngIf="patients.length === 0">
-            <td colspan="4" style="text-align: center; padding: 2rem;">No patients found. Backend is not seeded.</td>
-          </tr>
-        </tbody>
-      </table>
+            </ng-container>
+            <div *ngIf="!patient.latest_vitals || patient.latest_vitals.length === 0" class="no-vitals">
+              No vitals recorded
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="patients.length === 0" class="no-patients">
+        No patients found. Backend is not seeded.
+      </div>
     </div>
   </section>
 </div>

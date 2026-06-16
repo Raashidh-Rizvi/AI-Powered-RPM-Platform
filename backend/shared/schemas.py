@@ -32,6 +32,7 @@ class Patient(PatientBase):
     id: str
     created_at: datetime
     last_reading: Optional[RPMReading] = None
+    latest_vitals: Optional[List[RPMReading]] = []
 
     class Config:
         from_attributes = True
