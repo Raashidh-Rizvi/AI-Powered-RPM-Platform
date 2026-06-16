@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: rpm-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rdh123
+      POSTGRES_DB: "AI-Powered RPM Platform"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: rpm-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rpm-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:rdh123@db:5432/AI-Powered RPM Platform
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rpm-celery-worker
+    command: celery -A worker.celery_app worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql://postgres:rdh123@db:5432/AI-Powered RPM Platform
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
